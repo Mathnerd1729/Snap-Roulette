@@ -307,6 +307,7 @@ public class MainActivity extends Activity {
 				File pictureFile = getOutputMediaFile();
 
 				if (pictureFile == null) {
+                    System.out.println("poop");
 					return;
 				}
 				try {
@@ -344,7 +345,6 @@ public class MainActivity extends Activity {
         snapShot.setImageBitmap(rotatedBitmap);
         master.addView(snapShot);
         master.addView(polaroidFrame);
-// Return result
     }
 
     /*private static void postPicture(File file){
@@ -371,22 +371,26 @@ public class MainActivity extends Activity {
 	//make picture and save to a folder
 	private static File getOutputMediaFile() {
 		//make a new file directory inside the "sdcard" folder
-		File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "SnapRoulette");
-		
+		//File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "SnapRoulette");
+        File mediaStorageDir = new File("/tmp/sdcard/", "SnapRoulette");
+		System.out.println("blah boo: " + mediaStorageDir);
 		//if this "JCGCamera folder does not exist
 		if (!mediaStorageDir.exists()) {
+            System.out.println("Well shit");
 			//if you cannot make this folder return
 			if (!mediaStorageDir.mkdirs()) {
+                System.out.println("moobar");
 				return null;
 			}
 		}
 		
 		//take the current timeStamp
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        System.out.println("moobar2" + timeStamp);
 		File mediaFile;
 		//and make a media file:
 		mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
-
+        System.out.println("moobar3" + mediaFile);
 		return mediaFile;
 	}
 

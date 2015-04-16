@@ -97,15 +97,19 @@ public class RouletteWheel extends View {
    * paint - The paint used to draw the arc
    */
         oval.set(left, right, top, bottom);
-        canvas.drawArc(oval, 0, 40, true, paintG);
-        canvas.drawArc(oval, 40, 40, true, paintR);
-        canvas.drawArc(oval, 80, 40, true, paintB);
-        canvas.drawArc(oval, 120, 40, true, paintR);
-        canvas.drawArc(oval, 160, 40, true, paintB);
-        canvas.drawArc(oval, 200, 40, true, paintR);
-        canvas.drawArc(oval, 240, 40, true, paintB);
-        canvas.drawArc(oval, 280, 40, true, paintR);
-        canvas.drawArc(oval, 320, 40, true, paintB);
+        canvas.drawArc(oval, 0  , (float) 360.0/19, true, paintG);
+        for(int k=1; k < 19; k++ )
+        {
+            Paint arc = new Paint();
+            if(k%2 == 1)
+                arc = paintR;
+            else
+                arc = paintB;
+
+            canvas.drawArc(oval, (float) (360.0/19)*k  , (float) 360.0/19, true, arc);
+
+        }
+
 
 
     }
