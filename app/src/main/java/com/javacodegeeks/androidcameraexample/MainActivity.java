@@ -1,6 +1,7 @@
 package com.javacodegeeks.androidcameraexample;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,11 +31,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.CycleInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -52,7 +55,11 @@ public class MainActivity extends Activity {
 	private boolean cameraFront = false;
     private static RelativeLayout master;
     private static ImageView snapShot;
-    private static File myPicture;
+    private static View wheel;
+    private static RotateAnimation spinWheel;
+    private static int pFrameHeight, leftBlackoutWidth, topBlackoutHeight, width, height;
+    private static View whiteOut;
+
 
 
 	@Override
@@ -62,7 +69,8 @@ public class MainActivity extends Activity {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		myContext = this;
 		initialize();
-	}
+
+    }
 
 
 
@@ -94,8 +102,8 @@ public class MainActivity extends Activity {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        int width = size.x;
-        int height = size.y;
+        width = size.x;
+        height = size.y;
         System.out.println("Screen size: " + width + " x " + height);
 
 
@@ -112,7 +120,7 @@ public class MainActivity extends Activity {
 
             View topBlackout = new View(this);
             int topBlackoutWidth = width;
-            int topBlackoutHeight = (int)(height-width*(0.95))/2;
+            topBlackoutHeight = (int)(height-width*(0.95))/2;
         {
             RelativeLayout.LayoutParams layout = new RelativeLayout.LayoutParams(topBlackoutWidth,topBlackoutHeight);
             topBlackout.setLayoutParams(layout);
@@ -123,7 +131,7 @@ public class MainActivity extends Activity {
 
 
             View leftBlackout = new View(this);
-            int leftBlackoutWidth = (int) (width*(0.025));
+            leftBlackoutWidth = (int) (width*(0.025));
             int leftBlackoutHeight = (int) (width*(0.95));
         {
             RelativeLayout.LayoutParams layout = new RelativeLayout.LayoutParams(leftBlackoutWidth,leftBlackoutHeight);
@@ -172,7 +180,7 @@ public class MainActivity extends Activity {
 
         }
 
-            View wheel = new RouletteWheel(this, 0, 0, width/6, width/6);
+            wheel = new RouletteWheel(this, 0, 0, width/6, width/6);
 
         {
             wheel.setOnClickListener(captrureListener);
@@ -196,29 +204,21 @@ public class MainActivity extends Activity {
             polaroidFrame = new ImageView(myContext);
             polaroidFrame.setImageResource(R.drawable.polaroid);
             polaroidFrame.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            int pFrameWidth = (int)(width);
-            int pFrameHeight = (int)(1.04*width);
-            polaroidFrame.setRotation(-10.0f);
+            pFrameHeight = (int)(1.04*width);
+            //polaroidFrame.setRotation(-10.0f);
         {
+            polaroidFrame.setOnClickListener(pictureDone);
             RelativeLayout.LayoutParams layout = new RelativeLayout.LayoutParams(pFrameHeight, pFrameHeight);
             layout.leftMargin = leftBlackoutWidth / 2;
             layout.topMargin = (int)(topBlackoutHeight/1.35);
             polaroidFrame.setLayoutParams(layout);
         }
 
-            snapShot = new ImageView(myContext);
-            snapShot.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            snapShot.setBackgroundColor(Color.GREEN);
-            snapShot.setRotation(-10.0f);
+        initializeSnapShot();
 
-        {
-            RelativeLayout.LayoutParams layout = new RelativeLayout.LayoutParams(pFrameHeight,pFrameHeight);
-            layout.leftMargin = leftBlackoutWidth / 2;
-            layout.topMargin = (int)(topBlackoutHeight/1.25);
-            snapShot.setLayoutParams(layout);
-        }
 
-        RotateAnimation spinWheel = new RotateAnimation(0.0f,720.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+
+        spinWheel = new RotateAnimation(0.0f,720.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         spinWheel.setDuration(2000);
         spinWheel.setRepeatCount(spinWheel.INFINITE);
         spinWheel.setRepeatMode(spinWheel.RESTART);
@@ -237,50 +237,21 @@ public class MainActivity extends Activity {
 
 	}
 
-	OnClickListener switchCameraListener = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			//get the number of cameras
-			int camerasNumber = Camera.getNumberOfCameras();
-			if (camerasNumber > 1) {
-				//release the old camera instance
-				//switch camera, from the front and the back and vice versa
-				
-				releaseCamera();
-				chooseCamera();
-			} else {
-				Toast toast = Toast.makeText(myContext, "Sorry, your phone has only one camera!", Toast.LENGTH_LONG);
-				toast.show();
-			}
-		}
-	};
+    public void initializeSnapShot(){
+        snapShot = new ImageView(myContext);
+        snapShot.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        snapShot.setBackgroundColor(Color.GREEN);
+        //snapShot.setRotation(-10.0f);
 
-	public void chooseCamera() {
-		//if the camera preview is the front
-		if (cameraFront) {
-			int cameraId = findBackFacingCamera();
-			if (cameraId >= 0) {
-				//open the backFacingCamera
-				//set a picture callback
-				//refresh the preview
-				
-				mCamera = Camera.open(cameraId);				
-				mPicture = getPictureCallback();			
-				mPreview.refreshCamera(mCamera);
-			}
-		} else {
-			int cameraId = findFrontFacingCamera();
-			if (cameraId >= 0) {
-				//open the backFacingCamera
-				//set a picture callback
-				//refresh the preview
-				
-				mCamera = Camera.open(cameraId);
-				mPicture = getPictureCallback();
-				mPreview.refreshCamera(mCamera);
-			}
-		}
-	}
+        {
+            RelativeLayout.LayoutParams layout = new RelativeLayout.LayoutParams((int) (pFrameHeight/1.25) ,(int) (pFrameHeight/1.25));
+            layout.leftMargin = (int) (4.5*leftBlackoutWidth);
+            layout.topMargin = (int)(topBlackoutHeight/1.075);
+            snapShot.setLayoutParams(layout);
+        }
+    }
+
+
 
 	@Override
 	protected void onPause() {
@@ -310,6 +281,19 @@ public class MainActivity extends Activity {
                     System.out.println("poop");
 					return;
 				}
+
+                Matrix matrix = new Matrix();
+                matrix.postRotate(90);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap , 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+                snapShot.setImageBitmap(rotatedBitmap);
+
+                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                data = stream.toByteArray();
+
+
 				try {
 					//write the file
 					FileOutputStream fos = new FileOutputStream(pictureFile);
@@ -323,7 +307,7 @@ public class MainActivity extends Activity {
 				}
 
 				//refresh camera to continue preview
-                postPicture(pictureFile);
+                postPicture();
 				mPreview.refreshCamera(mCamera);
 			}
 		};
@@ -337,42 +321,86 @@ public class MainActivity extends Activity {
 		}
 	};
 
-    private static void postPicture(File file){
-        Matrix matrix = new Matrix();
-        matrix.postRotate(90);
-        Bitmap bitmap = BitmapFactory.decodeFile(file.toString());
-        Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap , 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-        snapShot.setImageBitmap(rotatedBitmap);
+    private void postPicture(){
         master.addView(snapShot);
         master.addView(polaroidFrame);
+        wheel.clearAnimation();
+        initializeWhiteOut();
     }
 
-    /*private static void postPicture(File file){
-        FileInputStream in;
-        BufferedInputStream buf;
-        try {
-            in = new FileInputStream(file.toString());
-            buf = new BufferedInputStream(in);
-            Bitmap bMap = BitmapFactory.decodeStream(buf);
-            snapShot.setImageBitmap(bMap);
-            if (in != null) {
-                in.close();
+    private void initializeWhiteOut(){
+        whiteOut = new View(this);
+        Animation fadeOut = new AlphaAnimation(1f,0f);
+
+        fadeOut.setDuration(1000);
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+
+            public void onAnimationStart(Animation animation) {
+                // TODO Auto-generated method stub
+
             }
-            if (buf != null) {
-                buf.close();
+
+            public void onAnimationRepeat(Animation animation) {
+                // TODO Auto-generated method stub
+
             }
-            System.out.println("picture done");
-            master.addView(snapShot);
-            master.addView(polaroidFrame);
-        } catch (Exception e) {
+
+            public void onAnimationEnd(Animation animation) {
+                whiteOut.setVisibility(View.GONE);
+
+            }
+        });
+
+        RelativeLayout.LayoutParams layout = new RelativeLayout.LayoutParams(width,height);
+        whiteOut.setLayoutParams(layout);
+        whiteOut.setBackgroundColor(Color.WHITE);
+        master.addView(whiteOut);
+        whiteOut.startAnimation(fadeOut);
+
+
+
+    }
+
+    OnClickListener pictureDone = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+
+            TranslateAnimation slideDown = new TranslateAnimation(0, 0, 0, height);
+            slideDown.setDuration(1000);
+
+            slideDown.setAnimationListener(new TranslateAnimation.AnimationListener() {
+
+                @Override
+                public void onAnimationStart(Animation animation) {
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    master.removeView(snapShot);
+                    master.removeView(polaroidFrame);
+                }
+            });
+
+            snapShot.startAnimation(slideDown);
+            polaroidFrame.startAnimation(slideDown);
+
+            //master.removeView(snapShot);
+            //master.removeView(polaroidFrame);
+
+            wheel.startAnimation(spinWheel);
+
         }
-    }*/
+    };
 
 	//make picture and save to a folder
 	private static File getOutputMediaFile() {
 		//make a new file directory inside the "sdcard" folder
-		//File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "SnapRoulette");
-        File mediaStorageDir = new File("/tmp/sdcard/", "SnapRoulette");
+		File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "SnapRoulette");
+        //File mediaStorageDir = new File("/sdcard/", "JCG Camera");
 		System.out.println("blah boo: " + mediaStorageDir);
 		//if this "JCGCamera folder does not exist
 		if (!mediaStorageDir.exists()) {
@@ -434,5 +462,50 @@ public class MainActivity extends Activity {
             }
         }
         return cameraId;
+    }
+
+    OnClickListener switchCameraListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            //get the number of cameras
+            int camerasNumber = Camera.getNumberOfCameras();
+            if (camerasNumber > 1) {
+                //release the old camera instance
+                //switch camera, from the front and the back and vice versa
+
+                releaseCamera();
+                chooseCamera();
+            } else {
+                Toast toast = Toast.makeText(myContext, "Sorry, your phone has only one camera!", Toast.LENGTH_LONG);
+                toast.show();
+            }
+        }
+    };
+
+    public void chooseCamera() {
+        //if the camera preview is the front
+        if (cameraFront) {
+            int cameraId = findBackFacingCamera();
+            if (cameraId >= 0) {
+                //open the backFacingCamera
+                //set a picture callback
+                //refresh the preview
+
+                mCamera = Camera.open(cameraId);
+                mPicture = getPictureCallback();
+                mPreview.refreshCamera(mCamera);
+            }
+        } else {
+            int cameraId = findFrontFacingCamera();
+            if (cameraId >= 0) {
+                //open the backFacingCamera
+                //set a picture callback
+                //refresh the preview
+
+                mCamera = Camera.open(cameraId);
+                mPicture = getPictureCallback();
+                mPreview.refreshCamera(mCamera);
+            }
+        }
     }
 }
