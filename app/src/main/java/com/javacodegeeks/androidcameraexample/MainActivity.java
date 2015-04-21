@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
@@ -44,6 +45,10 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.facebook.appevents.AppEventsLogger;
+import com.parse.*;
+import com.facebook.FacebookSdk;
+
 public class MainActivity extends Activity {
 	private Camera mCamera;
 	private CameraPreview mPreview;
@@ -68,7 +73,35 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		myContext = this;
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
+
 		initialize();
+
+       Parse.enableLocalDatastore(this);
+
+        Parse.initialize(this,"Qx7dQ4f0hK5bT09SUwaMJfbSB4AJYp3sGqToDwrX", "Lso4gqKfAjZAFoi1KFTbD0VcN7lWnbR8ZEQzMbMB");
+
+        ParseObject testObject = new ParseObject("TestObject");
+        testObject.put("foo", "bar");
+        testObject.saveInBackground();
+
+
+        ParseQuery poop = new ParseQuery("TestObject");
+        poop.whereEqualTo("foo","bar");
+        poop.orderByDescending("updatedAt");
+        poop.findInBackground(new FindCallback<ParseObject>() {
+
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if (e == null) {
+                    System.out.println("I got " + objects.size() + " objects.");
+                    System.out.println("Object[0]: " + objects.get(0).getObjectId() + " foo: " + objects.get(0).get("foo"));
+                } else {
+                    System.out.println("Poop!");
+                }
+            }
+        });
 
     }
 
@@ -91,6 +124,8 @@ public class MainActivity extends Activity {
 			mPicture = getPictureCallback();
 			mPreview.refreshCamera(mCamera);
 		}
+
+        AppEventsLogger.activateApp(this);
 	}
 
 	public void initialize() {
@@ -258,6 +293,8 @@ public class MainActivity extends Activity {
 		super.onPause();
 		//when on Pause, release camera in order to be used from other applications
 		releaseCamera();
+
+        AppEventsLogger.deactivateApp(this);
 	}
 
 	private boolean hasCamera(Context context) {

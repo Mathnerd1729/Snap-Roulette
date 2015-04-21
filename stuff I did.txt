@@ -1,0 +1,16 @@
+Microsoft Windows [Version 6.3.9600]
+(c) 2013 Microsoft Corporation. All rights reserved.
+
+C:\Users\kweis>cd C:\Program Files\Java\jdk1.8.0_40\bin
+
+C:\Program Files\Java\jdk1.8.0_40\bin>keytool -exportcert -alias androiddebugkey
+ -keystore ~/.android/debug.keystore | openssl sha1 -binary | openssl base64
+'openssl' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Program Files\Java\jdk1.8.0_40\bin>keytool -exportcert -alias androiddebugkey
+ -keystore ~/.android/debug.keystore | "C:\users\kweis\openssl\bin\openssl.exe"
+sha1 -binary | "C:\users\kweis\openssl\bin\openssl.exe" base64
++J+3yf/mrgPgKeg1llIttpSjcws=
+
+C:\Program Files\Java\jdk1.8.0_40\bin>
