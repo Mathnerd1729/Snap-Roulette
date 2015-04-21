@@ -26,5 +26,4 @@ dependencies {
     compile 'com.parse.bolts:bolts-android:1.+'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/Parse-1.9.1.jar')
-    compile files('C:/Users/kweis/Development/Snap-Roulette/lib/libs/Parse-1.9.1.jar')
 }
