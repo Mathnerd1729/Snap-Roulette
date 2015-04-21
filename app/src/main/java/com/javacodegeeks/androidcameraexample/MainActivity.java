@@ -8,11 +8,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -48,6 +51,7 @@ import android.widget.Toast;
 import com.facebook.appevents.AppEventsLogger;
 import com.parse.*;
 import com.facebook.FacebookSdk;
+import com.parse.ParseFacebookUtils;
 
 public class MainActivity extends Activity {
 	private Camera mCamera;
@@ -74,17 +78,20 @@ public class MainActivity extends Activity {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		myContext = this;
 
-        FacebookSdk.sdkInitialize(getApplicationContext());
+
 
 		initialize();
 
-       Parse.enableLocalDatastore(this);
+        Parse.enableLocalDatastore(this);
+        Parse.initialize(this, "Qx7dQ4f0hK5bT09SUwaMJfbSB4AJYp3sGqToDwrX", "Lso4gqKfAjZAFoi1KFTbD0VcN7lWnbR8ZEQzMbMB");
+        //FacebookSdk.sdkInitialize(getApplicationContext());
+        ParseFacebookUtils.initialize(this);
 
-        Parse.initialize(this,"Qx7dQ4f0hK5bT09SUwaMJfbSB4AJYp3sGqToDwrX", "Lso4gqKfAjZAFoi1KFTbD0VcN7lWnbR8ZEQzMbMB");
 
         ParseObject testObject = new ParseObject("TestObject");
         testObject.put("foo", "bar");
         testObject.saveInBackground();
+
 
 
         ParseQuery poop = new ParseQuery("TestObject");
@@ -105,7 +112,10 @@ public class MainActivity extends Activity {
 
     }
 
-
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
+    }
 
 	public void onResume() {
 		super.onResume();
@@ -354,6 +364,19 @@ public class MainActivity extends Activity {
 	OnClickListener captrureListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
+
+            //Collection<String> foo = new Collection<String>();
+            final List<String> permissions = new ArrayList<String>();
+            permissions.add("public_profile");
+            permissions.add("user_status");
+            permissions.add("user_friends");
+            ParseFacebookUtils.logInWithReadPermissionsInBackground((Activity)myContext, permissions, new LogInCallback() {
+                @Override
+                public void done(ParseUser parseUser, ParseException e) {
+                    System.out.println("POOP OH MY GOD " + parseUser + " exc: " + e);
+                }
+            });
+
 			mCamera.takePicture(null, null, mPicture);
 		}
 	};
