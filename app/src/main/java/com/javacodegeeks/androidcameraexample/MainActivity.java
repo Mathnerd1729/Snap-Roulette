@@ -563,6 +563,7 @@ public class MainActivity extends Activity {
                 //refresh the preview
 
                 mCamera = Camera.open(cameraId);
+                mCamera.enableShutterSound(true);
                 mPicture = getPictureCallback();
                 mPreview.refreshCamera(mCamera);
             }
@@ -574,6 +575,7 @@ public class MainActivity extends Activity {
                 //refresh the preview
 
                 mCamera = Camera.open(cameraId);
+                mCamera.enableShutterSound(true);
                 mPicture = getPictureCallback();
                 mPreview.refreshCamera(mCamera);
             }
