@@ -80,6 +80,7 @@ public class MainActivity extends Activity {
 
 
 
+
 		initialize();
 
         Parse.enableLocalDatastore(this);
@@ -109,6 +110,28 @@ public class MainActivity extends Activity {
                 }
             }
         });
+
+        /*
+        Test
+         */
+
+        new Thread() {
+            public void run() {
+                try {Thread.sleep(1000);} catch (Exception e) {}
+                //Collection<String> foo = new Collection<String>();
+                final List<String> permissions = new ArrayList<String>();
+                permissions.add("public_profile");
+                permissions.add("user_status");
+                permissions.add("user_friends");
+                ParseFacebookUtils.logInWithReadPermissionsInBackground((Activity)myContext, permissions, new LogInCallback() {
+                    @Override
+                    public void done(ParseUser parseUser, ParseException e) {
+                        System.out.println("POOP OH MY GOD " + parseUser + " exc: " + e);
+                    }
+                });
+            }
+        }.start();
+
 
     }
 
@@ -364,18 +387,6 @@ public class MainActivity extends Activity {
 	OnClickListener captrureListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-
-            //Collection<String> foo = new Collection<String>();
-            final List<String> permissions = new ArrayList<String>();
-            permissions.add("public_profile");
-            permissions.add("user_status");
-            permissions.add("user_friends");
-            ParseFacebookUtils.logInWithReadPermissionsInBackground((Activity)myContext, permissions, new LogInCallback() {
-                @Override
-                public void done(ParseUser parseUser, ParseException e) {
-                    System.out.println("POOP OH MY GOD " + parseUser + " exc: " + e);
-                }
-            });
 
 			mCamera.takePicture(null, null, mPicture);
 		}
