@@ -1,4 +1,4 @@
-package com.javacodegeeks.androidcameraexample;
+package com.mathnerd1729.snaproulette;
 
 import java.io.IOException;
 

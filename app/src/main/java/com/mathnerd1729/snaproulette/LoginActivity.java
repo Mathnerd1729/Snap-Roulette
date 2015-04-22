@@ -1,4 +1,4 @@
-package com.javacodegeeks.androidcameraexample;
+package com.mathnerd1729.snaproulette;
 
 import android.app.Activity;
 import android.os.Bundle;

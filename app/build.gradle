@@ -5,7 +5,7 @@ android {
     buildToolsVersion "21.1.2"
 
     defaultConfig {
-        applicationId "com.javacodegeeks.androidcameraexample"
+        applicationId "com.mathnerd1729.snaproulette"
         minSdkVersion 17
         targetSdkVersion 19
     }

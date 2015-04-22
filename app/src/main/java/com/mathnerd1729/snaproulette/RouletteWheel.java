@@ -1,4 +1,4 @@
-package com.javacodegeeks.androidcameraexample;
+package com.mathnerd1729.snaproulette;
 
 import android.content.Context;
 import android.graphics.Canvas;
