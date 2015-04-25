@@ -115,15 +115,20 @@ public class MainActivity extends Activity {
         Test
          */
 
-        new Thread() {
-            public void run() {
-                try {Thread.sleep(1000);} catch (Exception e) {}
+        if(ParseUser.getCurrentUser()==null) {
 
-                Intent i = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(i);
+            new Thread() {
+                public void run() {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (Exception e) {
+                    }
+
+                    Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(i);
 
 
-                return;
+                    return;
 
                 /*
                 //Collection<String> foo = new Collection<String>();
@@ -138,8 +143,9 @@ public class MainActivity extends Activity {
                     }
                 });
                 */
-            }
-        }.start();
+                }
+            }.start();
+        }
 
 
     }
